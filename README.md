@@ -22,10 +22,9 @@ Start the server with the command line
 		# Standard RTSP port is 554 
 		# But need to choose a #port > 1024
 
-Open a new terminal
+Start the client with the command line
 
-	Start the client with the command line
-		
+	Open a new terminal		
 		python ClientLauncher.py server_host server_port RTP_port video_file
 
 	Where 
@@ -37,19 +36,6 @@ Open a new terminal
 		# RTP_port : port where the RTP packets are received (here "5008")
 		# video_file : name of video file you want to request,here "video.mjpeg"
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		@ file format
 			Lab`s` proprietary MJPEG(Motion JPEG) format
