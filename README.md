@@ -15,10 +15,11 @@ Example:
 
 Start the server with the command line
 	
+	Open a new terminal	
 		python Server.py server_port
 	
-	Where server_port is the port your server listens to for incoming RTSP connections
-	    # 1025
+	Where
+		# server_port: the port your server listens to for incoming RTSP connections (here "1025")
 		# Standard RTSP port is 554 
 		# But need to choose a #port > 1024
 
@@ -28,13 +29,13 @@ Start the client with the command line
 		python ClientLauncher.py server_host server_port RTP_port video_file
 
 	Where 
-		# server_host : the name of the machine where server is running (here "127.0.0.1")
+		# server_host: the name of the machine where server is running (here "127.0.0.1")
             Use command line
                 hostname
             to get the hostname(IP address,human readable hostname may not work)
-		# server_port : port the server is listening on (here "1025")
-		# RTP_port : port where the RTP packets are received (here "5008")
-		# video_file : name of video file you want to request,here "video.mjpeg"
+		# server_port: port the server is listening on (here "1025")
+		# RTP_port: port where the RTP packets are received (here "5008")
+		# video_file: name of video file you want to request (here "video.mjpeg")
 	
 
 		@ file format
@@ -61,7 +62,7 @@ Start the client with the command line
                     > SETUP
                         * Send SETUP request to the server
                         * Insert Transport header(specify port for RTP data socket you just created)
-                        * RTP : Real-time Transport Protocol
+                        * RTP: Real-time Transport Protocol
                         * Read server`s` response
                         * Parse Session header(from response) to get RTSP Session ID
                         * Create a datagram socket for receiving RTP data
