@@ -172,7 +172,7 @@ class Client:
 		if requestCode == self.SETUP and self.state == self.INIT:
 			# # Get the RTP/UDP port from the last line
 			# self.clientInfo['rtpPort'] = request[2].split(' ')[3]
-			# => request += "Transport_method: RTP/UDP; Client_port: rtpPort"
+			# => request += "Transport: RTP/UDP; client_port= rtpPort"
 		
 			threading.Thread(target=self.recvRtspReply).start()
 			# Update RTSP sequence number.
@@ -182,8 +182,9 @@ class Client:
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.SETUP_STR,self.fileName,self.RTSP_VER)
-			request+="\nRTSP_sequence_number: %d" % self.rtspSeq
-			request+="\nTransport_method: %s; Client_port: %d" % (self.TRANSPORT,self.rtpPort)
+			request+="\nCSeq: %d" % self.rtspSeq
+			request+="\nTransport: %s; client_port= %d" % (self.TRANSPORT,self.rtpPort)
+			# request+="\nSession: %d"%self.sessionId
 			
 			# Keep track of the sent request.
 			# self.requestSent = ...
@@ -198,7 +199,7 @@ class Client:
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.PLAY_STR,self.fileName,self.RTSP_VER)
-			request+="\nRTSP_sequence_number: %d" % self.rtspSeq
+			request+="\nCSeq: %d" % self.rtspSeq
 			request+="\nSession: %d"%self.sessionId
 			
 			# Keep track of the sent request.
@@ -214,7 +215,7 @@ class Client:
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.PAUSE_STR,self.fileName,self.RTSP_VER)
-			request+="\nRTSP_sequence_number: %d" % self.rtspSeq
+			request+="\nCSeq: %d" % self.rtspSeq
 			request+="\nSession: %d"%self.sessionId
 			
 			# Keep track of the sent request.
@@ -230,7 +231,7 @@ class Client:
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.TEARDOWN_STR, self.fileName, self.RTSP_VER)
-			request+="\nRTSP_sequence_number: %d" % self.rtspSeq
+			request+="\nCSeq: %d" % self.rtspSeq
 			request+="\nSession: %d" % self.sessionId
 			
 			# Keep track of the sent request.
