@@ -153,8 +153,27 @@ class Client:
 		# TO COMPLETE
 		#-------------
 		
+		# # Get the request type
+		# request = data.split('\n')
+		# line1 = request[0].split(' ')
+		# requestType = line1[0]
+		
+		# # Get the media file name
+		# filename = line1[1]
+		# => request = "requestType + filename + \n"
+		
+		# # Get the RTSP sequence number 
+		# seq = request[1].split(' ')
+		# # Send RTSP reply
+		# self.replyRtsp(self.OK_200, seq[1])
+		# => request += "RTSP_sequence_number: + rtspSeq + \n"
+		
 		# Setup request
 		if requestCode == self.SETUP and self.state == self.INIT:
+			# # Get the RTP/UDP port from the last line
+			# self.clientInfo['rtpPort'] = request[2].split(' ')[3]
+			# => request += "Transport_method: RTP/UDP; Client_port: rtpPort"
+		
 			threading.Thread(target=self.recvRtspReply).start()
 			# Update RTSP sequence number.
 			# ...
@@ -163,8 +182,8 @@ class Client:
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.SETUP_STR,self.fileName,self.RTSP_VER)
-			request+="\nCSeq: %d" % self.rtspSeq
-			request+="\nTransport: %s; client_port= %d" % (self.TRANSPORT,self.rtpPort)
+			request+="\nRTSP_sequence_number: %d" % self.rtspSeq
+			request+="\nTransport_method: %s; Client_port: %d" % (self.TRANSPORT,self.rtpPort)
 			
 			# Keep track of the sent request.
 			# self.requestSent = ...
@@ -179,7 +198,7 @@ class Client:
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.PLAY_STR,self.fileName,self.RTSP_VER)
-			request+="\nCSeq: %d" % self.rtspSeq
+			request+="\nRTSP_sequence_number: %d" % self.rtspSeq
 			request+="\nSession: %d"%self.sessionId
 			
 			# Keep track of the sent request.
@@ -195,7 +214,7 @@ class Client:
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.PAUSE_STR,self.fileName,self.RTSP_VER)
-			request+="\nCSeq: %d" % self.rtspSeq
+			request+="\nRTSP_sequence_number: %d" % self.rtspSeq
 			request+="\nSession: %d"%self.sessionId
 			
 			# Keep track of the sent request.
@@ -211,7 +230,7 @@ class Client:
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.TEARDOWN_STR, self.fileName, self.RTSP_VER)
-			request+="\nCSeq: %d" % self.rtspSeq
+			request+="\nRTSP_sequence_number: %d" % self.rtspSeq
 			request+="\nSession: %d" % self.sessionId
 			
 			# Keep track of the sent request.
