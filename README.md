@@ -9,8 +9,7 @@ Example:
     Open another terminal:
         python ClientLauncher.py 127.0.0.1 1025 5008 movie.Mjpeg
 
-
-
+	Or run file "script.bat" in windows
 
 
 Start the server with the command line
@@ -63,7 +62,7 @@ Start the client with the command line
                         * Send SETUP request to the server
                         * Insert Transport header(specify port for RTP data socket you just created)
                         * RTP: Real-time Transport Protocol
-                        * Read server`s` response
+                        * Read server`s response
                         * Parse Session header(from response) to get RTSP Session ID
                         * Create a datagram socket for receiving RTP data
                         * Set timeout on socket to 0.5 seconds
@@ -73,21 +72,21 @@ Start the client with the command line
                         * Insert Session header
                         * Use the Session ID(returned in the SETUP response)
                         * Not put the Transport header in the request
-                        * Read the Server`s` response
+                        * Read the Server`s response
 
                     > PAUSE 
                         * Send PAUSE request
                         * Insert the Session header
                         * Use the Session ID returned in the SETUP response
                         * Not put the Transport header in this request
-                        * Read the server`s` response
+                        * Read the server`s response
 
                     > TEARDOWN
                         * Send TEARDOWN request
                         * Insert the Session header
                         * Use the Session ID returned in the SETUP response
                         * Not put the Transport header in this request
-                        * Read the server`s` response
+                        * Read the server`s response
 
                     *** Must insert CSeq header in every request you send
                             Which starts at 1 and incremented by one for each request you send
