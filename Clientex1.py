@@ -1,7 +1,7 @@
 from tkinter import *
 import tkinter.messagebox
 from PIL import Image, ImageTk
-import socket, threading, sys, traceback, os
+import socket, threading, sys, traceback, os, time
 
 from RtpPacket import RtpPacket
 
@@ -41,32 +41,33 @@ class Client:
 		self.teardownAcked = 0
 		self.connectToServer()
 		self.frameNbr = 0
-		
-		"""Setup after making connection to server."""
-		if self.state == self.INIT:
-			self.sendRtspRequest(self.SETUP)
-		
-		
+
 	def createWidgets(self):
 		"""Build GUI."""
+		# Create Setup button
+		self.setup = Button(self.master, width=20, padx=3, pady=3)
+		self.setup["text"] = "Setup"
+		self.setup["command"] = self.setupMovie
+		self.setup.grid(row=1, column=0, padx=2, pady=2)
+		
 		# Create Play button		
 		self.start = Button(self.master, width=20, padx=3, pady=3)
 		self.start["text"] = "Play"
 		self.start["command"] = self.playMovie
-		self.start.grid(row=1, column=0, padx=2, pady=2)
+		self.start.grid(row=1, column=1, padx=2, pady=2)
 		
 		# Create Pause button			
 		self.pause = Button(self.master, width=20, padx=3, pady=3)
 		self.pause["text"] = "Pause"
 		self.pause["command"] = self.pauseMovie
-		self.pause.grid(row=1, column=1, padx=2, pady=2)
+		self.pause.grid(row=1, column=2, padx=2, pady=2)
 		
-		# Create Stop button
-		self.stop = Button(self.master, width=20, padx=3, pady=3)
-		self.stop["text"] = "Stop"
-		self.stop["command"] =  self.stopMovie
-		self.stop.grid(row=1, column=2, padx=2, pady=2)
-
+		# Create Teardown button
+		self.teardown = Button(self.master, width=20, padx=3, pady=3)
+		self.teardown["text"] = "Teardown"
+		self.teardown["command"] =  self.exitClient
+		self.teardown.grid(row=1, column=3, padx=2, pady=2)
+		
 		# Create a label to display the movie
 		self.label = Label(self.master, height=19)
 		self.label.grid(row=0, column=0, columnspan=4, sticky=W+E+N+S, padx=5, pady=5) 
@@ -76,13 +77,6 @@ class Client:
 		if self.state == self.INIT:
 			self.sendRtspRequest(self.SETUP)
 	
-	def stopMovie(self):
-		self.pauseMovie()
-		if tkinter.messagebox.askokcancel("Quit?", "Are you sure you want to quit?"):
-			self.exitClient()
-		else:
-			self.sendRtspRequest(self.TEARDOWN)	
-
 	def exitClient(self):
 		"""Teardown button handler."""
 		self.sendRtspRequest(self.TEARDOWN)		
@@ -105,19 +99,27 @@ class Client:
 	
 	def listenRtp(self):		
 		"""Listen for RTP packets."""
+		received = 0
+		sent = 0
+		size = 0
+		start = time.time()
 		while True:
 			try:
+				sent += 1
 				data = self.rtpSocket.recv(20480)
+				size += len(data)
 				if data:
 					rtpPacket = RtpPacket()
 					rtpPacket.decode(data)
-					
+					received += 1
 					currFrameNbr = rtpPacket.seqNum()
 					print("Current Seq Num: " + str(currFrameNbr))
 										
 					if currFrameNbr > self.frameNbr: # Discard the late packet
 						self.frameNbr = currFrameNbr
 						self.updateMovie(self.writeFrame(rtpPacket.getPayload()))
+				end = time.time()
+
 			except:
 				# Stop listening upon requesting PAUSE or TEARDOWN
 				if self.playEvent.isSet(): 
@@ -129,6 +131,9 @@ class Client:
 					self.rtpSocket.shutdown(socket.SHUT_RDWR)
 					self.rtpSocket.close()
 					break
+		print("Packet loss rate: %.2f" % round((1 - float(received/sent))*100, 2) +"%")
+		print("Video data rate: %.2f" % round(size/(end-start), 2) +" bytes/s")
+
 					
 	def writeFrame(self, data):
 		"""Write the received frame to a temp image file. Return the image file."""
