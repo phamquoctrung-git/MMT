@@ -1,8 +1,8 @@
 from tkinter import *
 import tkinter.messagebox
 from PIL import Image, ImageTk
-import socket, threading, sys, traceback, os, time
-
+import socket, threading, sys, traceback, os
+import time
 from RtpPacket import RtpPacket
 
 CACHE_FILE_NAME = "cache-"
@@ -25,6 +25,9 @@ class Client:
 	TEARDOWN_STR = 'TEARDOWN'
 	RTSP_VER = "RTSP/1.0"
 	TRANSPORT = "RTP/UDP"
+	COUNT = 0
+	TOTALLOSSPACKET = 0
+	TOTALSIZE = 0
 	
 	# Initiation..
 	def __init__(self, master, serveraddr, serverport, rtpport, filename):
@@ -41,7 +44,7 @@ class Client:
 		self.teardownAcked = 0
 		self.connectToServer()
 		self.frameNbr = 0
-
+		
 	def createWidgets(self):
 		"""Build GUI."""
 		# Create Setup button
@@ -99,30 +102,33 @@ class Client:
 	
 	def listenRtp(self):		
 		"""Listen for RTP packets."""
-		received = 0
-		sent = 0
-		size = 0
 		start = time.time()
+		end = 0
 		while True:
 			try:
-				sent += 1
 				data = self.rtpSocket.recv(20480)
-				size += len(data)
 				if data:
 					rtpPacket = RtpPacket()
 					rtpPacket.decode(data)
-					received += 1
+					self.TOTALSIZE += len(data)
 					currFrameNbr = rtpPacket.seqNum()
-					print("Current Seq Num: " + str(currFrameNbr))
-										
+					self.COUNT += 1
+					if self.COUNT != currFrameNbr:
+						self.TOTALLOSSPACKET += 1
+						self.COUNT = currFrameNbr
+					print("Current Seq Num: " + str(currFrameNbr))									
 					if currFrameNbr > self.frameNbr: # Discard the late packet
 						self.frameNbr = currFrameNbr
 						self.updateMovie(self.writeFrame(rtpPacket.getPayload()))
-				end = time.time()
-
+					if self.COUNT == 500:
+						end = time.time()
 			except:
 				# Stop listening upon requesting PAUSE or TEARDOWN
-				if self.playEvent.isSet(): 
+				if self.playEvent.isSet():
+					if end == 0:
+						end = time.time()
+					print("Rate loss packet: " + str(round((self.TOTALLOSSPACKET/self.COUNT)*100, 2)) + "%")
+					print("Video data rate: " + str(round((self.TOTALSIZE/(end - start)), 2)) + str("byte/s"))
 					break
 				
 				# Upon receiving ACK for TEARDOWN request,
@@ -131,9 +137,6 @@ class Client:
 					self.rtpSocket.shutdown(socket.SHUT_RDWR)
 					self.rtpSocket.close()
 					break
-		print("Packet loss rate: %.2f" % round((1 - float(received/sent))*100, 2) +"%")
-		print("Video data rate: %.2f" % round(size/(end-start), 2) +" bytes/s")
-
 					
 	def writeFrame(self, data):
 		"""Write the received frame to a temp image file. Return the image file."""
@@ -156,7 +159,7 @@ class Client:
 		try:
 			self.rtspSocket.connect((self.serverAddr, self.serverPort))
 		except:
-			tkinter.messagebox.showwarning('Connection Failed', 'Connection to \'%s\' failed.' %self.serverAddr)
+			tkMessageBox.showwarning('Connection Failed', 'Connection to \'%s\' failed.' %self.serverAddr)
 	
 	def sendRtspRequest(self, requestCode):
 		"""Send RTSP request to the server."""	
