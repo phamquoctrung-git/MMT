@@ -111,10 +111,8 @@ class ServerWorker:
 		# Process DESCRIBE request
 		elif requestType == self.DESCRIBE:
 			print("processing DESCRIBE\n")
-			self.state = self.READY
 			
-			self.clientInfo['event'].set()
-		
+			print(self.clientInfo['rtspSocket'][1][0])
 			self.replyRtsp(self.OK_200, seq[1])
 
 			
