@@ -323,7 +323,10 @@ class Client:
 						self.state = self.INIT
 						
 						# Flag the teardownAcked to close the socket.
-						self.teardownAcked = 1 
+						self.teardownAcked = 1
+					elif self.requestSent == self.DESCRIBE:
+						# self.state = ...
+						self.state = self.PLAYING
 	
 	def openRtpPort(self):
 		"""Open RTP socket binded to a specified port."""
