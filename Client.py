@@ -326,7 +326,7 @@ class Client:
 						self.teardownAcked = 1
 					elif self.requestSent == self.DESCRIBE:
 						# self.state = ...
-						self.state = self.PLAYING
+						tkinter.messagebox.showwarning('Unable to Bind', 'Unable to bind PORT=%d' %self.rtpPort)
 	
 	def openRtpPort(self):
 		"""Open RTP socket binded to a specified port."""
