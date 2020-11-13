@@ -19,6 +19,7 @@ class ServerWorker:
 	OK_200 = 0
 	FILE_NOT_FOUND_404 = 1
 	CON_ERR_500 = 2
+	DESCRIPTION = 3
 	
 	clientInfo = {}
 	
@@ -113,7 +114,7 @@ class ServerWorker:
 			print("processing DESCRIBE\n")
 			
 			print(self.clientInfo['rtspSocket'][1][0])
-			self.replyRtsp(self.OK_200, seq[1])
+			self.replyRtsp(self.DESCRIPTION, seq[1])
 
 			
 	def sendRtp(self):
@@ -163,6 +164,12 @@ class ServerWorker:
 			connSocket = self.clientInfo['rtspSocket'][0]
 			connSocket.send(reply.encode())
 		
+		elif code == self.DESCRIPTION:
+			reply = 'RTSP/1.0 200 OK\nCSeq: ' + seq + '\nSession: ' + str(self.clientInfo['session'])
+			connSocket = self.clientInfo['rtspSocket'][0]
+			print(self.clientInfo['rtspSocket'])
+			connSocket.send(reply.encode())
+
 		# Error messages
 		elif code == self.FILE_NOT_FOUND_404:
 			print("404 NOT FOUND")

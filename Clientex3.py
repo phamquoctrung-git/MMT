@@ -18,11 +18,13 @@ class Client:
 	PLAY = 1
 	PAUSE = 2
 	TEARDOWN = 3
+	DESCRIBE = 4
 	
 	SETUP_STR = 'SETUP'
 	PLAY_STR = 'PLAY'
 	PAUSE_STR = 'PAUSE'
 	TEARDOWN_STR = 'TEARDOWN'
+	DESCRIBE_STR = 'DESCRIBE'
 	RTSP_VER = "RTSP/1.0"
 	TRANSPORT = "RTP/UDP"
 	
@@ -45,28 +47,34 @@ class Client:
 	def createWidgets(self):
 		"""Build GUI."""
 		# Create Setup button
-		self.setup = Button(self.master, width=20, padx=3, pady=3)
+		self.setup = Button(self.master, width=15, padx=3, pady=3)
 		self.setup["text"] = "Setup"
 		self.setup["command"] = self.setupMovie
 		self.setup.grid(row=1, column=0, padx=2, pady=2)
 		
 		# Create Play button		
-		self.start = Button(self.master, width=20, padx=3, pady=3)
+		self.start = Button(self.master, width=15, padx=3, pady=3)
 		self.start["text"] = "Play"
 		self.start["command"] = self.playMovie
 		self.start.grid(row=1, column=1, padx=2, pady=2)
 		
 		# Create Pause button			
-		self.pause = Button(self.master, width=20, padx=3, pady=3)
+		self.pause = Button(self.master, width=15, padx=3, pady=3)
 		self.pause["text"] = "Pause"
 		self.pause["command"] = self.pauseMovie
 		self.pause.grid(row=1, column=2, padx=2, pady=2)
 		
 		# Create Teardown button
-		self.teardown = Button(self.master, width=20, padx=3, pady=3)
+		self.teardown = Button(self.master, width=15, padx=3, pady=3)
 		self.teardown["text"] = "Teardown"
 		self.teardown["command"] =  self.exitClient
 		self.teardown.grid(row=1, column=3, padx=2, pady=2)
+		
+		# Create Describe button
+		self.describe = Button(self.master, width=15, padx=3, pady=3)
+		self.describe["text"] = "Describe"
+		self.describe["command"] =  self.describeSesion
+		self.describe.grid(row=1, column=4, padx=2, pady=2)
 		
 		# Create a label to display the movie
 		self.label = Label(self.master, height=19)
@@ -96,7 +104,11 @@ class Client:
 			self.playEvent = threading.Event()
 			self.playEvent.clear()
 			self.sendRtspRequest(self.PLAY)
-	
+
+	def describeSesion(self):
+		"""Pause button handler."""
+		self.sendRtspRequest(self.DESCRIBE)
+
 	def listenRtp(self):		
 		"""Listen for RTP packets."""
 		while True:
@@ -145,7 +157,7 @@ class Client:
 		try:
 			self.rtspSocket.connect((self.serverAddr, self.serverPort))
 		except:
-			tkMessageBox.showwarning('Connection Failed', 'Connection to \'%s\' failed.' %self.serverAddr)
+			tkinter.messagebox.showwarning('Connection Failed', 'Connection to \'%s\' failed.' %self.serverAddr)
 	
 	def sendRtspRequest(self, requestCode):
 		"""Send RTSP request to the server."""	
@@ -237,6 +249,17 @@ class Client:
 			# Keep track of the sent request.
 			# self.requestSent = ...
 			self.requestSent = self.TEARDOWN
+		
+		# Descibe request
+		elif requestCode == self.DESCRIBE:
+			# Write the RTSP request to be sent.
+			# request = ...
+			request = "%s %s %s" % (self.DESCRIBE_STR, self.fileName, self.RTSP_VER)
+			request+="\nCSeq: %d" % self.rtspSeq
+			
+			# Keep track of the sent request.
+			# self.requestSent = ...
+			self.requestSent = self.DESCRIBE
 			
 		else:
 			return
@@ -300,7 +323,16 @@ class Client:
 						self.state = self.INIT
 						
 						# Flag the teardownAcked to close the socket.
-						self.teardownAcked = 1 
+						self.teardownAcked = 1
+					elif self.requestSent == self.DESCRIBE:
+						# self.state = ...
+						res = lines[0]
+						seqNum
+						session
+						name = self.fileName
+						contentType = "application/sdp"
+						contentLength = 0
+						tkinter.messagebox.showwarning('Session Description Protocol', res + '\nCSeq: %d' %seqNum + '\nSession: %d' %session + '\nFile name: %s' %name + '\nContent type: %s' %contentType + '\nContent Length: %d' %contentLength)
 	
 	def openRtpPort(self):
 		"""Open RTP socket binded to a specified port."""
