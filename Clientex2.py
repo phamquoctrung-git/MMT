@@ -18,13 +18,11 @@ class Client:
 	PLAY = 1
 	PAUSE = 2
 	TEARDOWN = 3
-	STOP = 4
 	
 	SETUP_STR = 'SETUP'
 	PLAY_STR = 'PLAY'
 	PAUSE_STR = 'PAUSE'
 	TEARDOWN_STR = 'TEARDOWN'
-	STOP_STR = 'STOP'
 	RTSP_VER = "RTSP/1.0"
 	TRANSPORT = "RTP/UDP"
 	
@@ -79,16 +77,23 @@ class Client:
 		self.label = Label(self.master, height=19)
 		self.label.grid(row=0, column=0, columnspan=4, sticky=W+E+N+S, padx=5, pady=5) 
 	
+	def setupMovie(self):
+		"""Setup button handler."""
+		if self.state == self.INIT:
+			self.sendRtspRequest(self.SETUP)
+	
+	def stopMovie(self):
+		self.pauseMovie()
+		if tkinter.messagebox.askokcancel("Quit?", "Are you sure you want to quit?"):
+			self.exitClient()
+		else:
+			self.sendRtspRequest(self.TEARDOWN)	
+
 	def exitClient(self):
 		"""Teardown button handler."""
 		self.sendRtspRequest(self.TEARDOWN)		
 		self.master.destroy() # Close the gui window
 		os.remove(CACHE_FILE_NAME + str(self.sessionId) + CACHE_FILE_EXT) # Delete the cache image from video
-	
-	def stopMovie(self):
-		"""Stop button handler."""
-		if not self.state == self.INIT:
-			self.sendRtspRequest(self.STOP)
 
 	def pauseMovie(self):
 		"""Pause button handler."""
@@ -229,40 +234,22 @@ class Client:
 			# self.requestSent = ...
 			self.requestSent = self.PAUSE
 			
-		# # Teardown request
-		# elif requestCode == self.TEARDOWN and not self.state == self.INIT:
-		# 	# Update RTSP sequence number.
-		# 	# ...
-		# 	self.rtspSeq+=1
-			
-		# 	# Write the RTSP request to be sent.
-		# 	# request = ...
-		# 	request = "%s %s %s" % (self.TEARDOWN_STR, self.fileName, self.RTSP_VER)
-		# 	request+="\nCSeq: %d" % self.rtspSeq
-		# 	request+="\nSession: %d" % self.sessionId
-			
-		# 	# Keep track of the sent request.
-		# 	# self.requestSent = ...
-		# 	self.requestSent = self.TEARDOWN
-			
-
-		# Stop request
-		elif requestCode == self.STOP and not self.state == self.INIT:
+		# Teardown request
+		elif requestCode == self.TEARDOWN and not self.state == self.INIT:
 			# Update RTSP sequence number.
 			# ...
 			self.rtspSeq+=1
 			
 			# Write the RTSP request to be sent.
 			# request = ...
-			request = "%s %s %s" % (self.TEARDOWN_STR,self.fileName,self.RTSP_VER)
+			request = "%s %s %s" % (self.TEARDOWN_STR, self.fileName, self.RTSP_VER)
 			request+="\nCSeq: %d" % self.rtspSeq
-			request+="\nSession: %d"%self.sessionId
+			request+="\nSession: %d" % self.sessionId
 			
 			# Keep track of the sent request.
 			# self.requestSent = ...
 			self.requestSent = self.TEARDOWN
 			
-
 		else:
 			return
 		
