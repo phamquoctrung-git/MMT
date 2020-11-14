@@ -252,6 +252,10 @@ class Client:
 		
 		# Descibe request
 		elif requestCode == self.DESCRIBE:
+			# Update RTSP sequence number.
+			# ...
+			self.rtspSeq+=1
+			
 			# Write the RTSP request to be sent.
 			# request = ...
 			request = "%s %s %s" % (self.DESCRIBE_STR, self.fileName, self.RTSP_VER)
@@ -326,13 +330,9 @@ class Client:
 						self.teardownAcked = 1
 					elif self.requestSent == self.DESCRIBE:
 						# self.state = ...
-						res = lines[0]
-						seqNum
-						session
-						name = self.fileName
-						contentType = "application/sdp"
-						contentLength = 0
-						tkinter.messagebox.showwarning('Session Description Protocol', res + '\nCSeq: %d' %seqNum + '\nSession: %d' %session + '\nFile name: %s' %name + '\nContent type: %s' %contentType + '\nContent Length: %d' %contentLength)
+						sdp = "\n".join(lines)
+						contentLength = len(data)
+						tkinter.messagebox.showinfo('Session Description Protocol', sdp)
 	
 	def openRtpPort(self):
 		"""Open RTP socket binded to a specified port."""
