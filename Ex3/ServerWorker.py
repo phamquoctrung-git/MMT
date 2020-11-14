@@ -170,7 +170,7 @@ class ServerWorker:
 
 			reply = 'RTSP/1.0 200 OK\nCSeq: ' + seq + '\nSession: ' + str(self.clientInfo['session']) + '\nFile name: %s' %self.clientInfo['videoStream'].filename + '\nEncoding: UTF-8' + '\nCurrent frame: %d' %self.clientInfo['videoStream'].frameNbr()
 
-			sdp = '\nv=0\no=' + socket.gethostname() + ' %d ' %timestamp + '1 IN IP4 ' + socket.gethostbyname(socket.gethostname()) + '\ns= SDP\nm=video ' + self.clientInfo['rtpPort'] + ' RTP/UDP 1.0'
+			sdp = '\nv=0\no=' + socket.gethostname() + ' %d ' %timestamp + '1 IN IP4 ' + socket.gethostbyname(socket.gethostname()) + '\ns=SDP\nm=video ' + self.clientInfo['rtpPort'] + ' RTP/UDP 1.0'
 
 			reply += '\nContent-Type: application/sdp\nContent-Length: ' + str(len(sdp)) + '\nDate: '+ datetime.now().strftime('%d %b %Y %H:%M:%S GMT') + sdp
 			
